@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ISU Classroom Reservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #64bb97 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            animation: gradientAnimation 15s ease infinite;
+            background-size: 400% 400%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            z-index: -1;
+            background: radial-gradient(rgba(255, 255, 255, 0.1) 8%, transparent 8%);
+            background-position: 0 0;
+            background-size: 30px 30px;
+            opacity: 0.3;
+            animation: backgroundMove 60s linear infinite;
+        }
+        
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 30px); }
+        }
+        
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            animation: fadeInUp 0.8s forwards;
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-header {
+            background: linear-gradient(to right, #289672, #7BCEAC);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background-color: white;
+            border-radius: 50% 50% 0 0;
+            animation: waveAnimation 8s ease-in-out infinite;
+        }
+        
+        @keyframes waveAnimation {
+            0%, 100% { transform: scaleX(1); }
+            50% { transform: scaleX(1.05); }
+        }
+        
+        .login-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .login-form {
+            padding: 40px 30px 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group:focus-within {
+            /* Removing the upward movement on focus */
+            transform: none;
+        }
+        
+        .form-group:focus-within .form-icon {
+            /* Removing the icon pulse animation */
+            animation: none;
+        }
+        
+        .form-control {
+            height: 50px;
+            border-radius: 10px;
+            border: 1px solid #e1e1e1;
+            padding-left: 45px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+        
+        .form-control:hover {
+            /* Simplifying hover effect */
+            box-shadow: none;
+            border-color: #e1e1e1;
+        }
+        
+        .form-control:focus + .form-icon {
+            /* Removing icon scaling */
+            transform: none;
+        }
+        
+        .form-control:focus {
+            /* Removing sideways movement and simplifying focus effect */
+            border-color: #289672;
+            box-shadow: 0 0 0 0.2rem rgba(40, 150, 114, 0.25);
+            transform: none;
+        }
+        
+        /* Removing the animated focus border */
+        .form-focus-border {
+            display: none;
+        }
+        
+        .form-icon {
+            position: absolute;
+            left: 15px;
+            top: 17px;
+            color: #289672;
+            transition: all 0.3s ease;
+        }
+        
+        .login-btn {
+            height: 50px;
+            border-radius: 10px;
+            background: linear-gradient(to right, #289672, #7BCEAC);
+            border: none;
+            color: white;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .login-btn:active::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to right, #237a5d, #64b998);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e1e1e1;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .login-footer {
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        
+        .login-footer a {
+            color: #289672;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .login-footer a:hover {
+            color: var(--complementary-coral);
+        }
+        
+        .login-footer a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--complementary-coral);
+            transition: width 0.3s ease;
+        }
+        
+        .login-footer a:hover::after {
+            width: 100%;
+        }
+        
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .brand-logo i {
+            font-size: 50px;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(255, 127, 106, 0.2);
+            border-color: #FF7F6A;
+            color: #d85746;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 5px 15px rgba(255, 127, 106, 0.2);
+        }
+        
+        .login-btn.loading {
+            background: linear-gradient(to right, #237a5d, #64b998);
+            pointer-events: none;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="brand-logo">
+                <i class="fas fa-building-columns"></i>
+            </div>
+            <h1>ISU Classroom Reservation</h1>
+            <p>Login to your account</p>
+        </div>
+        
+        <div class="login-form">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('login') }}" class="fade-in-up delay-1">
+                <div class="mb-4 text-center">
+                    <small class="text-muted">Please enter your credentials to access your account</small>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-id-card form-icon"></i>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter your ID Number" required autocomplete="username">
+                    <div class="form-focus-border"></div>
+                </div>
+                
+                <div class="form-group">
+                    <i class="fas fa-lock form-icon"></i>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    <div class="form-focus-border"></div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn login-btn" id="loginBtn">
+                        <i class="fas fa-sign-in-alt me-2"></i> <span>Login</span>
+                    </button>
+                </div>
+                
+                <script>
+                    // Add loading state to login button
+                    document.getElementById('loginBtn').addEventListener('click', function(e) {
+                        const btn = this;
+                        const span = btn.querySelector('span');
+                        const icon = btn.querySelector('i');
+                        
+                        // Don't show loading state if form is invalid
+                        if (!btn.form.checkValidity()) return;
+                        
+                        // Show loading state
+                        span.textContent = 'Logging in...';
+                        icon.className = 'fas fa-circle-notch fa-spin me-2';
+                        btn.classList.add('loading');
+                    });
+                </script>
+            </form>
+            
+            <div class="divider fade-in-up delay-2">
+                <span>or</span>
+            </div>
+            
+            <div class="login-footer fade-in-up delay-2">
+                <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up now</a></p>
+                <div class="mt-3">
+                    <small class="text-muted">By logging in, you agree to our Terms of Service and Privacy Policy</small>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-home me-1"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

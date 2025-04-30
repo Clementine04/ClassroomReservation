@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}ISU Classroom Reservation - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-5">
+    <div class="hero-bg-shapes"></div>
+    <div class="content">
+        <h1 class="display-4 fade-in-up">Welcome to ISU Classroom Reservation System</h1>
+        <p class="lead fade-in-up delay-1">Efficiently manage classroom bookings at ISU Cauayan Campus with our streamlined reservation platform. Find available rooms, make bookings, and manage your schedule with ease.</p>
+        <div class="mt-4 fade-in-up delay-2">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" class="btn btn-light btn-lg me-3 shadow pulse-btn">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-outline-light btn-lg hover-scale">Sign Up</a>
+            {% else %}
+                {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light btn-lg shadow pulse-btn">Go to Admin Dashboard</a>
+                {% elif current_user.role == 'teacher' %}
+                    <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-light btn-lg shadow pulse-btn">Go to Teacher Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('student_dashboard') }}" class="btn btn-light btn-lg shadow pulse-btn">Go to Student Dashboard</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12 text-center mb-5">
+        <h2 class="section-title">How It Works</h2>
+        <p class="text-muted section-subtitle">Our platform makes classroom management simple and efficient</p>
+        <div class="section-divider"><span><i class="fas fa-graduation-cap"></i></span></div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="card-header">
+                <h5 class="mb-0">For Students</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h5>Browse Available Classrooms</h5>
+                <p>Easily view available classrooms across different departments to plan your study sessions.</p>
+                <hr>
+                <ul class="list-unstyled feature-list">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Check room availability</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>View department classrooms</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>See current bookings</li>
+                </ul>
+                <a href="{{ url_for('signup') }}" class="btn btn-outline-primary mt-3 hover-scale">Student Sign Up</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="card-header">
+                <h5 class="mb-0">For Teachers</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h5>Reserve Classrooms</h5>
+                <p>Easily book classrooms for your lectures, exams, or special events with a few simple clicks.</p>
+                <hr>
+                <ul class="list-unstyled feature-list">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Book available rooms</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Manage your reservations</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Plan your teaching schedule</li>
+                </ul>
+                <a href="{{ url_for('signup') }}" class="btn btn-outline-primary mt-3 hover-scale">Teacher Sign Up</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="feature-card">
+            <div class="card-header">
+                <h5 class="mb-0">For Administrators</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h5>System Management</h5>
+                <p>Oversee the entire system, manage users and monitor classroom utilization across campus.</p>
+                <hr>
+                <ul class="list-unstyled feature-list">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Verify teacher accounts</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Monitor system usage</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Oversee all reservations</li>
+                </ul>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary mt-3 hover-scale">Admin Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12 text-center mb-5">
+        <h2 class="section-title">System Statistics</h2>
+        <div class="section-divider"><span><i class="fas fa-chart-line"></i></span></div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-school"></i></div>
+            <h3><span class="counter" data-target="15">0</span>+</h3>
+            <p>Departments</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+            <h3><span class="counter" data-target="100">0</span>+</h3>
+            <p>Classrooms</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <h3><span class="counter" data-target="500">0</span>+</h3>
+            <p>Active Users</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <h3><span class="counter" data-target="1000">0</span>+</h3>
+            <p>Monthly Bookings</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12 text-center mb-5">
+        <h2 class="section-title">Why Choose Our System</h2>
+        <div class="section-divider"><span><i class="fas fa-check"></i></span></div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12">
+        <div class="card shadow hover-card">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <div class="col-md-6 p-5">
+                        <h3 class="mb-4 highlight-text">Simplify Campus Resource Management</h3>
+                        <p class="text-muted">Our classroom reservation system helps ISU Cauayan optimize classroom usage and streamline scheduling processes.</p>
+                        <div class="benefits-list">
+                            <p>With our integrated platform, you can:</p>
+                            <ul>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Avoid scheduling conflicts</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Maximize classroom utilization</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Plan ahead with confidence</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Access the system from anywhere</li>
+                            </ul>
+                        </div>
+                        <a href="{{ url_for('signup') }}" class="btn btn-primary mt-3 pulse-btn">Get Started Today</a>
+                    </div>
+                    <div class="col-md-6 bg-light p-5 d-flex align-items-center">
+                        <div class="w-100">
+                            <h4 class="text-center mb-4 highlight-text">How to Book a Classroom</h4>
+                            <div class="step-item d-flex mb-3">
+                                <div class="me-3">
+                                    <div class="step-number bg-primary text-white rounded-circle d-flex justify-content-center align-items-center">
+                                        <span>1</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Create an account</h5>
+                                    <p class="text-muted mb-0">Sign up with your ISU ID and password</p>
+                                </div>
+                            </div>
+                            <div class="step-item d-flex mb-3">
+                                <div class="me-3">
+                                    <div class="step-number bg-primary text-white rounded-circle d-flex justify-content-center align-items-center">
+                                        <span>2</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Browse available rooms</h5>
+                                    <p class="text-muted mb-0">Select your preferred department and view rooms</p>
+                                </div>
+                            </div>
+                            <div class="step-item d-flex mb-3">
+                                <div class="me-3">
+                                    <div class="step-number bg-primary text-white rounded-circle d-flex justify-content-center align-items-center">
+                                        <span>3</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Book your classroom</h5>
+                                    <p class="text-muted mb-0">Select date, time and confirm your reservation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+{% endblock %}

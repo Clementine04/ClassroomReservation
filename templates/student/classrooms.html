@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ department.name }} Classrooms - ISU Classroom Reservation{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ department.name }} Classrooms</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4">{{ department.name }} - Available Classrooms</h2>
+
+<div class="row">
+    {% for classroom in classrooms %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Room {{ classroom.room_number }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Capacity:</strong> {{ classroom.capacity }} seats</p>
+                <h6>Current Reservations:</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in classroom.reservations %}
+                            <tr>
+                                <td>{{ reservation.date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ reservation.start_time.strftime('%H:%M') }} - {{ reservation.end_time.strftime('%H:%M') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center">No current reservations</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            No classrooms have been added to this department yet.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

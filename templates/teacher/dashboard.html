@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - ISU Classroom Reservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --main-green: #289672;
+            --secondary-green: #7BCEAC;
+            --complementary-coral: #FF7F6A;
+            --neutral-beige: #F5F1E8;
+            --dark-green: #1e7055;
+            --light-coral: #FFa79c;
+            --text-dark: #333333;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --booked-red: #ff6b6b;
+            --booked-red-light: #ffe5e5;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .content-wrapper {
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--main-green);
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--main-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .logout-btn {
+            color: white;
+            background-color: var(--complementary-coral);
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #e66a55;
+            color: white;
+        }
+        
+        .logout-btn i {
+            margin-right: 8px;
+        }
+        
+        .nav-tabs {
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--medium-gray);
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--text-dark);
+            font-weight: 500;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            margin-right: 0.5rem;
+            transition: all 0.3s;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--main-green);
+            background-color: transparent;
+            border-bottom: 3px solid var(--main-green);
+            font-weight: 600;
+        }
+        
+        .nav-tabs .nav-link:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-color: transparent;
+        }
+        
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .room-box {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .room-box.unnamed {
+            background-color: #f8f9fa;
+            border: 2px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .room-box.unnamed:hover {
+            border-color: var(--main-green);
+            background-color: rgba(123, 206, 172, 0.1);
+        }
+        
+        .room-box.unnamed i {
+            font-size: 2rem;
+            color: #aaa;
+        }
+        
+        .room-box.unnamed:hover i {
+            color: var(--main-green);
+        }
+        
+        .room-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .room-box.booked {
+            background-color: var(--booked-red-light);
+            border: 1px solid var(--booked-red);
+        }
+        
+        .room-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--main-green);
+            margin-bottom: 0.5rem;
+        }
+        
+        .room-box.booked .room-number {
+            color: var(--booked-red);
+        }
+        
+        .room-capacity {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 0.75rem;
+        }
+        
+        .room-status {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-available {
+            background-color: rgba(123, 206, 172, 0.2);
+            color: var(--main-green);
+        }
+        
+        .status-booked {
+            background-color: rgba(255, 107, 107, 0.2);
+            color: var(--booked-red);
+        }
+        
+        .badge-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--complementary-coral);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .section-title {
+            color: var(--main-green);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background-color: var(--complementary-coral);
+            left: 0;
+            bottom: -8px;
+        }
+        
+        .feature-box {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(123, 206, 172, 0.2);
+            color: var(--main-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--main-green);
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            background-color: var(--main-green);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            border: none;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        .modal-footer {
+            border-top: none;
+            padding: 1rem 1.5rem 1.5rem;
+        }
+        
+        .booking-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .booking-item {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--medium-gray);
+            transition: all 0.3s;
+        }
+        
+        .booking-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .booking-item .booking-date {
+            font-weight: 600;
+            color: var(--main-green);
+        }
+        
+        .booking-item .booking-time {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .booking-item .booking-teacher {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .booking-actions {
+            margin-top: 0.75rem;
+        }
+        
+        .btn-add-department {
+            background-color: var(--main-green);
+            color: white;
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-left: 1rem;
+        }
+        
+        .btn-add-department:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
+        
+        .btn-add-room {
+            background-color: var(--main-green);
+            color: white;
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-add-room:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .dept-delete-btn {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dept-delete-btn:hover {
+            opacity: 1;
+        }
+        
+        .btn-delete-room {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--complementary-coral);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .room-box:hover .btn-delete-room {
+            opacity: 0.8;
+        }
+        
+        .btn-delete-room:hover {
+            opacity: 1 !important;
+            color: #d9534f;
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 1rem;
+            }
+            
+            .room-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .room-number {
+                font-size: 1.25rem;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar d-flex justify-content-between">
+            <div class="navbar-brand mb-0">
+                <i class="fas fa-building-columns"></i>
+                <span>ISU Reservation | Teacher</span>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                <div class="user-info me-3">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name">{{ current_user.display_name }}</span>
+                </div>
+                
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Department Tabs and Management -->
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="section-title">Department Management</h3>
+            <button type="button" class="btn btn-add-department" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                <i class="fas fa-plus me-2"></i> Add Department
+            </button>
+        </div>
+        
+        <ul class="nav nav-tabs" id="departmentTabs" role="tablist">
+            {% for department in departments %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if loop.first %}active{% endif %}" 
+                        id="dept-{{ department.id }}-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#dept-{{ department.id }}" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="dept-{{ department.id }}" 
+                        aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+                    {{ department.name }}
+                    <span class="ms-2 text-danger dept-delete-btn" onclick="confirmDeleteDepartment(event, '{{ department.id }}', '{{ department.name }}')">
+                        <i class="fas fa-times-circle"></i>
+                    </span>
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <div class="tab-content" id="departmentTabsContent">
+            {% for department in departments %}
+            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                id="dept-{{ department.id }}" 
+                role="tabpanel" 
+                aria-labelledby="dept-{{ department.id }}-tab">
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>{{ department.name }} Classrooms</h4>
+                    <div>
+                        <button type="button" class="btn btn-success" 
+                            onclick="refreshRooms('{{ department.id }}')">
+                            <i class="fas fa-sync-alt me-2"></i> Refresh
+                        </button>
+                        <button type="button" class="btn btn-success ms-2" 
+                            onclick="addEmptyRoom('{{ department.id }}')">
+                            <i class="fas fa-plus me-2"></i> Add Room
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="room-grid" id="room-grid-{{ department.id }}" data-department-id="{{ department.id }}">
+                    {% for classroom in department.classrooms %}
+                    <div class="room-box {% if classroom.reservations|length > 0 %}booked{% endif %}" 
+                        data-room-id="{{ classroom.id }}"
+                        data-room-number="{{ classroom.room_number }}"
+                        data-capacity="{{ classroom.capacity }}"
+                        onclick="handleRoomClick(this)">
+                        <div class="room-number">{{ classroom.room_number }}</div>
+                        <div class="room-capacity">Capacity: {{ classroom.capacity }} persons</div>
+                        <div class="room-status {% if classroom.reservations|length > 0 %}status-booked{% else %}status-available{% endif %}">
+                            {% if classroom.reservations|length > 0 %}
+                                Booked
+                            {% else %}
+                                Available
+                            {% endif %}
+                        </div>
+                        
+                        {% if classroom.reservations|length > 0 %}
+                        <div class="badge-count">
+                            {{ classroom.reservations|length }}
+                        </div>
+                        {% endif %}
+                        
+                        <button class="btn-delete-room" onclick="confirmDeleteRoom(event, '{{ classroom.id }}', '{{ classroom.room_number }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No classrooms have been added to this department yet.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Room Details Modal -->
+    <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roomModalLabel">Room Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="room-details mb-3">
+                        <h4 id="modalRoomNumber"></h4>
+                        <p id="modalRoomCapacity" class="text-muted"></p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Current Bookings</h5>
+                        <button id="btnBookRoom" class="btn btn-success">
+                            <i class="fas fa-plus-circle me-2"></i> Book This Room
+                        </button>
+                    </div>
+                    
+                    <div id="bookingsContainer" class="booking-list">
+                        <!-- Bookings will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Department Modal -->
+    <div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDepartmentModalLabel">Add New Department</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDepartmentForm" method="POST" action="{{ url_for('add_department') }}">
+                        <div class="mb-3">
+                            <label for="departmentName" class="form-label">Department Name</label>
+                            <input type="text" class="form-control" id="departmentName" name="department_name" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-2"></i> Create Department
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Book Room Modal -->
+    <div class="modal fade" id="bookRoomModal" tabindex="-1" aria-labelledby="bookRoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookRoomModalLabel">Book a Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bookRoomForm" method="POST">
+                        <input type="hidden" id="bookingRoomId" name="classroom_id">
+                        <div class="mb-3">
+                            <label for="bookingDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="bookingDate" name="date" required min="{{ today }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="startTime" class="form-label">Start Time</label>
+                            <input type="time" class="form-control time-picker" id="startTime" name="start_time" required>
+                            <small class="form-text text-muted">Format: HH:MM AM/PM</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endTime" class="form-label">End Time</label>
+                            <input type="time" class="form-control time-picker" id="endTime" name="end_time" required>
+                            <small class="form-text text-muted">Format: HH:MM AM/PM</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="purpose" class="form-label">Purpose</label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="3" required></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-success" onclick="submitBooking()">
+                                <i class="fas fa-calendar-check me-2"></i> Book Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentRoomId = null;
+        
+        // Function to add an empty room box
+        function addEmptyRoom(departmentId) {
+            const roomGrid = document.getElementById('room-grid-' + departmentId);
+            
+            // Remove alert if it exists
+            const alert = roomGrid.querySelector('.alert');
+            if (alert) {
+                alert.parentElement.remove();
+            }
+            
+            // Create a new unnamed room box
+            const roomBox = document.createElement('div');
+            roomBox.className = 'room-box unnamed';
+            roomBox.setAttribute('data-department-id', departmentId);
+            roomBox.innerHTML = '<i class="fas fa-plus-circle"></i>';
+            
+            // Add click event
+            roomBox.addEventListener('click', function() {
+                nameRoom(this, departmentId);
+            });
+            
+            // Add to the grid
+            roomGrid.appendChild(roomBox);
+        }
+        
+        // Function to prompt for room name and save
+        function nameRoom(roomElement, departmentId) {
+            // If the room already has an ID, it's an existing room
+            const roomId = roomElement.getAttribute('data-room-id');
+            
+            if (roomId) {
+                // This is an existing room, handle viewing it
+                handleExistingRoom(roomElement);
+                return;
+            }
+            
+            // Create modal for naming the room
+            const roomNumber = prompt('Enter room number (e.g., 101, 202):');
+            if (!roomNumber) return; // User cancelled
+            
+            const capacity = prompt('Enter room capacity:', '30');
+            if (!capacity) return; // User cancelled
+            
+            // Create the room in the database
+            saveNewRoom(departmentId, roomNumber, capacity, roomElement);
+        }
+        
+        // Function to save a new room to the database
+        function saveNewRoom(departmentId, roomNumber, capacity, roomElement) {
+            // Create form data
+            const formData = new FormData();
+            formData.append('department_id', departmentId);
+            formData.append('room_number', roomNumber);
+            formData.append('capacity', capacity);
+            
+            // Send the request
+            fetch('/teacher/classroom/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the room box with the new information
+                    roomElement.classList.remove('unnamed');
+                    roomElement.setAttribute('data-room-id', data.classroom_id);
+                    roomElement.setAttribute('data-room-number', roomNumber);
+                    roomElement.setAttribute('data-capacity', capacity);
+                    
+                    roomElement.innerHTML = `
+                        <div class="room-number">${roomNumber}</div>
+                        <div class="room-capacity">Capacity: ${capacity} persons</div>
+                        <div class="room-status status-available">Available</div>
+                    `;
+                    
+                    // Update click handler
+                    roomElement.removeEventListener('click', function() {
+                        nameRoom(roomElement, departmentId);
+                    });
+                    
+                    roomElement.addEventListener('click', function() {
+                        handleRoomClick(roomElement);
+                    });
+                    
+                    // Show success message
+                    alert('Room created successfully!');
+                } else {
+                    // Show error message
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error creating room:', error);
+                alert('An error occurred while creating the room. Please try again.');
+            });
+        }
+        
+        // Function to handle room clicks (both new and existing)
+        function handleRoomClick(roomElement) {
+            // If the room is unnamed (doesn't have an ID), handle naming
+            if (roomElement.classList.contains('unnamed')) {
+                const departmentId = roomElement.getAttribute('data-department-id');
+                nameRoom(roomElement, departmentId);
+                return;
+            }
+            
+            // Otherwise, this is an existing room - show details
+            const roomId = roomElement.getAttribute('data-room-id');
+            const roomNumber = roomElement.getAttribute('data-room-number');
+            const capacity = roomElement.getAttribute('data-capacity');
+            
+            // Handle existing room viewing
+            viewRoom(roomId, roomNumber, capacity);
+        }
+        
+        // Function to handle existing room viewing (from before)
+        function viewRoom(roomId, roomNumber, capacity) {
+            currentRoomId = roomId;
+            
+            // Update modal title and info
+            document.getElementById('modalRoomNumber').textContent = 'Room ' + roomNumber;
+            document.getElementById('modalRoomCapacity').textContent = 'Capacity: ' + capacity + ' persons';
+            
+            // Set the room ID for booking form
+            document.getElementById('bookingRoomId').value = roomId;
+            document.getElementById('bookRoomForm').action = "{{ url_for('reserve_classroom', classroom_id=0) }}".replace('0', roomId);
+            
+            // Update book button click handler
+            document.getElementById('btnBookRoom').onclick = function() {
+                // Hide room modal and show booking modal
+                bootstrap.Modal.getInstance(document.getElementById('roomModal')).hide();
+                new bootstrap.Modal(document.getElementById('bookRoomModal')).show();
+            };
+            
+            // Load bookings for this room
+            fetchRoomBookings(roomId);
+            
+            // Show the modal
+            new bootstrap.Modal(document.getElementById('roomModal')).show();
+        }
+        
+        // Function to fetch room bookings
+        function fetchRoomBookings(roomId) {
+            fetch('/teacher/room/' + roomId + '/bookings')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    const container = document.getElementById('bookingsContainer');
+                    container.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        container.innerHTML = '<div class="alert alert-info">No bookings found for this room.</div>';
+                        return;
+                    }
+                    
+                    data.forEach(function(booking) {
+                        const bookingItem = document.createElement('div');
+                        bookingItem.className = 'booking-item';
+                        
+                        const isCurrentUserBooking = booking.user_id == {{ current_user.id }};
+                        
+                        bookingItem.innerHTML = `
+                            <div class="booking-date">${booking.date}</div>
+                            <div class="booking-time">${booking.start_time} - ${booking.end_time}</div>
+                            <div class="booking-teacher">Teacher: ${booking.teacher_name}</div>
+                            <div class="booking-purpose mt-2">Purpose: ${booking.purpose}</div>
+                            ${isCurrentUserBooking ? `
+                                <div class="booking-actions">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteBooking(${booking.id})">
+                                        <i class="fas fa-trash me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            ` : ''}
+                        `;
+                        
+                        container.appendChild(bookingItem);
+                    });
+                })
+                .catch(function(error) {
+                    console.error('Error fetching bookings:', error);
+                    document.getElementById('bookingsContainer').innerHTML = 
+                        '<div class="alert alert-danger">Error loading bookings. Please try again.</div>';
+                });
+        }
+        
+        // Function to delete a booking
+        function deleteBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this reservation?')) {
+                fetch('/teacher/booking/' + bookingId + '/delete', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Refresh the bookings list
+                            fetchRoomBookings(currentRoomId);
+                            
+                            // Show success message
+                            alert('Reservation cancelled successfully');
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting booking:', error);
+                        alert('An error occurred while cancelling the reservation');
+                    });
+            }
+        }
+        
+        // Function to confirm and delete a department
+        function confirmDeleteDepartment(event, departmentId, departmentName) {
+            // Prevent the tab from being activated
+            event.stopPropagation();
+            
+            if (confirm(`Are you sure you want to delete the department "${departmentName}"? This will also delete all rooms in this department.`)) {
+                deleteDepartment(departmentId);
+            }
+        }
+        
+        // Function to delete a department
+        function deleteDepartment(departmentId) {
+            fetch('/teacher/department/' + departmentId + '/delete', { method: 'POST' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        // Remove the tab and its content
+                        const tabElement = document.getElementById('dept-' + departmentId + '-tab');
+                        const tabContent = document.getElementById('dept-' + departmentId);
+                        
+                        // If this was the active tab, activate the first tab
+                        const wasActive = tabElement.classList.contains('active');
+                        
+                        // Remove the elements
+                        tabElement.parentNode.remove();
+                        tabContent.remove();
+                        
+                        // If this was the active tab, activate the first tab if it exists
+                        if (wasActive) {
+                            const firstTab = document.querySelector('#departmentTabs .nav-link');
+                            if (firstTab) {
+                                firstTab.click();
+                            }
+                        }
+                        
+                        alert('Department deleted successfully');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error deleting department:', error);
+                    alert('An error occurred while deleting the department');
+                });
+        }
+        
+        // Function to confirm and delete a room
+        function confirmDeleteRoom(event, roomId, roomNumber) {
+            // Prevent the room click event
+            event.stopPropagation();
+            
+            if (confirm(`Are you sure you want to delete Room ${roomNumber}?`)) {
+                deleteRoom(roomId);
+            }
+        }
+        
+        // Function to delete a room
+        function deleteRoom(roomId) {
+            fetch('/teacher/classroom/' + roomId + '/delete', { method: 'POST' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        // Find and remove the room element
+                        const roomElement = document.querySelector(`.room-box[data-room-id="${roomId}"]`);
+                        if (roomElement) {
+                            roomElement.remove();
+                        }
+                        
+                        alert('Room deleted successfully');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error deleting room:', error);
+                    alert('An error occurred while deleting the room');
+                });
+        }
+        
+        // Function to submit a booking via AJAX
+        function submitBooking() {
+            const form = document.getElementById('bookRoomForm');
+            const formData = new FormData(form);
+            const roomId = document.getElementById('bookingRoomId').value;
+            
+            fetch('/teacher/reserve/' + roomId, {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    // Close the booking modal
+                    bootstrap.Modal.getInstance(document.getElementById('bookRoomModal')).hide();
+                    
+                    // Show success message
+                    alert('Room booked successfully!');
+                    
+                    // Refresh the room details if the room details modal is open
+                    if (currentRoomId === roomId) {
+                        fetchRoomBookings(roomId);
+                    }
+                    
+                    // Find the department ID to refresh the room grid
+                    const roomElement = document.querySelector(`[data-room-id="${roomId}"]`);
+                    if (roomElement) {
+                        const grid = roomElement.closest('.room-grid');
+                        const departmentId = grid.getAttribute('data-department-id');
+                        refreshRooms(departmentId);
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error booking room:', error);
+                alert('An error occurred while booking the room. Please try again.');
+            });
+        }
+        
+        // Function to refresh rooms in a department
+        function refreshRooms(departmentId) {
+            // Get the current room grid element
+            const roomGrid = document.getElementById('room-grid-' + departmentId);
+            
+            // Get all existing room elements and their positions
+            const existingRoomElements = {};
+            const existingRoomOrder = [];
+            const existingUnnamedCount = document.querySelectorAll('.room-box.unnamed').length;
+            
+            // Store each room's position by its ID or a special unnamed ID
+            roomGrid.querySelectorAll('.room-box').forEach(function(room, index) {
+                const roomId = room.getAttribute('data-room-id');
+                if (roomId) {
+                    // This is a named room
+                    existingRoomElements[roomId] = room.cloneNode(true);
+                    existingRoomOrder.push({type: 'named', id: roomId, index: index});
+                } else {
+                    // This is an unnamed room
+                    const unnamedId = 'unnamed-' + index;
+                    existingRoomElements[unnamedId] = room.cloneNode(true);
+                    existingRoomOrder.push({type: 'unnamed', id: unnamedId, index: index});
+                }
+            });
+            
+            // Now fetch the updated named rooms from the server
+            fetch('/teacher/department/' + departmentId + '/rooms')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        const updatedNamedRooms = {};
+                        
+                        // Create updated room elements for all named rooms
+                        data.classrooms.forEach(function(classroom) {
+                            const hasReservations = classroom.reservation_count > 0;
+                            const roomBox = document.createElement('div');
+                            roomBox.className = 'room-box' + (hasReservations ? ' booked' : '');
+                            roomBox.setAttribute('data-room-id', classroom.id);
+                            roomBox.setAttribute('data-room-number', classroom.room_number);
+                            roomBox.setAttribute('data-capacity', classroom.capacity);
+                            roomBox.setAttribute('onclick', 'handleRoomClick(this)');
+                            
+                            roomBox.innerHTML = `
+                                <div class="room-number">${classroom.room_number}</div>
+                                <div class="room-capacity">Capacity: ${classroom.capacity} persons</div>
+                                <div class="room-status ${hasReservations ? 'status-booked' : 'status-available'}">
+                                    ${hasReservations ? 'Booked' : 'Available'}
+                                </div>
+                                ${hasReservations ? `
+                                <div class="badge-count">
+                                    ${classroom.reservation_count}
+                                </div>
+                                ` : ''}
+                                <button class="btn-delete-room" onclick="confirmDeleteRoom(event, '${classroom.id}', '${classroom.room_number}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                            
+                            updatedNamedRooms[classroom.id] = roomBox;
+                        });
+                        
+                        // Clear the room grid
+                        roomGrid.innerHTML = '';
+                        
+                        // If there are no rooms at all
+                        if (existingRoomOrder.length === 0 && data.classrooms.length === 0) {
+                            roomGrid.innerHTML = `
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i> No classrooms have been added to this department yet.
+                                    </div>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // Reconstruct the grid preserving order
+                        existingRoomOrder.forEach(function(item) {
+                            if (item.type === 'named') {
+                                // This was a named room, check if it still exists
+                                if (updatedNamedRooms[item.id]) {
+                                    roomGrid.appendChild(updatedNamedRooms[item.id]);
+                                    delete updatedNamedRooms[item.id]; // Mark as processed
+                                }
+                            } else {
+                                // This was an unnamed room, add it back
+                                roomGrid.appendChild(existingRoomElements[item.id]);
+                            }
+                        });
+                        
+                        // Add any new named rooms that weren't in the original order
+                        Object.values(updatedNamedRooms).forEach(function(room) {
+                            roomGrid.appendChild(room);
+                        });
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error refreshing rooms:', error);
+                    alert('An error occurred while refreshing the rooms');
+                });
+        }
+        
+        // Set minimum date for booking to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').min = today;
+            
+            // Format time inputs for better display
+            setupTimePickers();
+        });
+        
+        // Setup time pickers with AM/PM format
+        function setupTimePickers() {
+            // Modern browsers use 24-hour format for time inputs, but we can convert displayed values
+            const timeInputs = document.querySelectorAll('.time-picker');
+            
+            timeInputs.forEach(function(input) {
+                // When the input loses focus, format the displayed value
+                input.addEventListener('change', function() {
+                    if (this.value) {
+                        const timeValue = this.value;
+                        const [hours, minutes] = timeValue.split(':');
+                        
+                        // Keep the original value for form submission (24h format)
+                        this.dataset.originalValue = timeValue;
+                        
+                        // Display in AM/PM format in a span next to the input
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        const displayHours = hours % 12 || 12; // Convert 0 to 12
+                        const displayTime = `${displayHours}:${minutes} ${ampm}`;
+                        
+                        // Find or create the display span
+                        let displaySpan = this.nextElementSibling.nextElementSibling;
+                        if (!displaySpan || !displaySpan.classList.contains('time-display')) {
+                            displaySpan = document.createElement('span');
+                            displaySpan.className = 'time-display ms-2 badge bg-secondary';
+                            this.parentNode.insertBefore(displaySpan, this.nextElementSibling.nextSibling);
+                        }
+                        
+                        displaySpan.textContent = displayTime;
+                    }
+                });
+                
+                // Trigger the change event to format any pre-filled values
+                if (input.value) {
+                    const event = new Event('change');
+                    input.dispatchEvent(event);
+                }
+            });
+        }
+        
+        // Format time for display in the booking details
+        function formatTime(timeStr) {
+            // Convert from "HH:MM" format to "HH:MM AM/PM"
+            const [hours, minutes] = timeStr.split(':');
+            const hour = parseInt(hours, 10);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12; // Convert 0 to 12
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+    </script>
+</body>
+</html>

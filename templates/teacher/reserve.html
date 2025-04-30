@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Reserve Classroom - ISU Classroom Reservation{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('teacher_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('view_department_classrooms', department_id=classroom.department_id) }}">{{ classroom.department.name }} Classrooms</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Reserve Room {{ classroom.room_number }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Reserve Classroom - Room {{ classroom.room_number }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Room Details:</h5>
+                    <p><strong>Room Number:</strong> {{ classroom.room_number }}</p>
+                    <p><strong>Department:</strong> {{ classroom.department.name }}</p>
+                    <p><strong>Capacity:</strong> {{ classroom.capacity }} seats</p>
+                </div>
+                
+                <h5>Current Reservations:</h5>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in classroom.reservations %}
+                            <tr>
+                                <td>{{ reservation.date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ reservation.start_time.strftime('%H:%M') }} - {{ reservation.end_time.strftime('%H:%M') }}</td>
+                                <td>{{ reservation.purpose }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No current reservations</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h5>Make a Reservation:</h5>
+                <form method="POST" action="{{ url_for('reserve_classroom', classroom_id=classroom.id) }}">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_time" class="form-label">Start Time</label>
+                                <input type="time" class="form-control" id="start_time" name="start_time" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_time" class="form-label">End Time</label>
+                                <input type="time" class="form-control" id="end_time" name="end_time" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose</label>
+                        <textarea class="form-control" id="purpose" name="purpose" rows="3" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Reserve Classroom</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
