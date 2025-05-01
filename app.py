@@ -54,6 +54,16 @@ else:
 print(f"Final DB URI: '{app.config['SQLALCHEMY_DATABASE_URI']}'", file=sys.stderr)
 db_type = app.config['SQLALCHEMY_DATABASE_URI'].split(':')[0] if app.config['SQLALCHEMY_DATABASE_URI'] else 'EMPTY'
 print(f"Final DB URI type: {db_type}", file=sys.stderr)
+
+# Additional configuration for PostgreSQL
+if db_type == 'postgresql':
+    print("Setting PostgreSQL specific configurations", file=sys.stderr)
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 10,
+        'pool_timeout': 30,
+        'pool_recycle': 1800,
+    }
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
