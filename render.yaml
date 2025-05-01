@@ -4,7 +4,7 @@ services:
     env: python
     region: ohio
     buildCommand: pip install -r requirements.txt
-    startCommand: python migrate.py && gunicorn app:app
+    startCommand: sleep 5 && python migrate.py && gunicorn app:app
     envVars:
       - key: ENVIRONMENT
         value: production
@@ -22,4 +22,6 @@ services:
 databases:
   - name: classroom_db
     plan: free
-    databaseName: classroom_reservation 
+    region: ohio
+    databaseName: classroom_reservation
+    ipAllowList: []  # only allow internal connections 

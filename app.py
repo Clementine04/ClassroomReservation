@@ -20,21 +20,25 @@ print(f"ENVIRONMENT: {os.environ.get('ENVIRONMENT', 'not set')}", file=sys.stder
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24).hex())
 
+# List all environment variables for debugging
+print("Available environment variables:", file=sys.stderr)
+for key, value in os.environ.items():
+    if any(keyword in key.upper() for keyword in ['DATABASE', 'DB', 'POSTGRES', 'RENDER', 'ENVIRONMENT']):
+        masked_value = value[:5] + '...' if len(value) > 10 else value
+        print(f"  {key}: {masked_value}", file=sys.stderr)
+
 # Database configuration
 if is_prod:
     print("Running in PRODUCTION mode", file=sys.stderr)
     # Get DATABASE_URL from environment
     db_url = os.environ.get('DATABASE_URL', '')
     
-    print(f"Raw DATABASE_URL: {db_url}", file=sys.stderr)
+    print(f"Raw DATABASE_URL: '{db_url}'", file=sys.stderr)
     
     if not db_url:
         print("ERROR: DATABASE_URL not set in environment!", file=sys.stderr)
-        print("Available environment variables:", file=sys.stderr)
-        for key, value in os.environ.items():
-            if 'DATABASE' in key or 'DB' in key or 'POSTGRES' in key:
-                masked_value = value[:10] + '...' if len(value) > 10 else value
-                print(f"  {key}: {masked_value}", file=sys.stderr)
+        print("Using SQLite as fallback (THIS IS NOT RECOMMENDED FOR PRODUCTION)", file=sys.stderr)
+        db_url = 'sqlite:///emergency_fallback.db'
     
     # Ensure URL format is correct for SQLAlchemy
     if db_url.startswith("postgres://"):
@@ -47,7 +51,9 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///classroom_reservation.db'
     print(f"Using SQLite database", file=sys.stderr)
 
-print(f"Final DB URI type: {app.config['SQLALCHEMY_DATABASE_URI'].split(':')[0]}", file=sys.stderr)
+print(f"Final DB URI: '{app.config['SQLALCHEMY_DATABASE_URI']}'", file=sys.stderr)
+db_type = app.config['SQLALCHEMY_DATABASE_URI'].split(':')[0] if app.config['SQLALCHEMY_DATABASE_URI'] else 'EMPTY'
+print(f"Final DB URI type: {db_type}", file=sys.stderr)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
