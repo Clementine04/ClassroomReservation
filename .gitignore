@@ -48,6 +48,9 @@ Desktop.ini
 # Mac
 .DS_Store
 
+# Logs
+*.log
+
 # Render deployment files
 render.yaml
 

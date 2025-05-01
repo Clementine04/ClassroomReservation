@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -8,8 +7,19 @@ from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24).hex()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///classroom_reservation.db'
+
+# Configure app based on environment
+is_prod = os.environ.get('ENVIRONMENT', 'development') == 'production'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24).hex())
+
+# Database configuration
+if is_prod:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '')
+    if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+        app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///classroom_reservation.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
@@ -26,7 +36,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)  # This is the ID number
     display_name = db.Column(db.String(100), nullable=True)  # Added display name field
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(20), default='student')  # 'student', 'teacher', or 'admin'
+    role = db.Column(db.String(20), default='student') # 'student', 'teacher', or 'admin'
     reservations = db.relationship('Reservation', backref='user', lazy=True)
     
     def set_password(self, password):
@@ -91,7 +101,7 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form.get('username')  # ID number
+        username = request.form.get('username') # ID number
         display_name = request.form.get('display_name')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
@@ -563,10 +573,11 @@ def cleanup_expired_reservations():
 if __name__ == '__main__':
     with app.app_context():
         try:
-            # Ensure the database directory exists
-            db_dir = os.path.dirname(app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', ''))
-            if db_dir and not os.path.exists(db_dir):
-                os.makedirs(db_dir)
+            # Ensure the database directory exists for SQLite (not needed for PostgreSQL)
+            if not is_prod and app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):
+                db_dir = os.path.dirname(app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', ''))
+                if db_dir and not os.path.exists(db_dir):
+                    os.makedirs(db_dir)
             
             # Create tables
             db.create_all()
@@ -581,5 +592,6 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"Error during database initialization: {str(e)}")
     
-    # Run the application
-    app.run(debug=True)
+    # Run the application - in production, this is handled by Gunicorn
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=not is_prod)
