@@ -1,1 +1,1 @@
-web: python migrate.py && gunicorn app:app 
+web: sleep 5 && python migrate.py && gunicorn app:app 

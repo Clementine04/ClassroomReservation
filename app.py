@@ -10,7 +10,14 @@ import sys
 app = Flask(__name__)
 
 # Configure app based on environment
-is_prod = os.environ.get('ENVIRONMENT', 'development') == 'production'
+# Force production mode when running on Render
+is_render = os.environ.get('RENDER', '') == 'true' or 'RENDER_SERVICE_ID' in os.environ
+is_prod = is_render or os.environ.get('ENVIRONMENT', 'development') == 'production'
+
+print(f"IS_RENDER: {is_render}", file=sys.stderr)
+print(f"IS_PRODUCTION: {is_prod}", file=sys.stderr)
+print(f"ENVIRONMENT: {os.environ.get('ENVIRONMENT', 'not set')}", file=sys.stderr)
+
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24).hex())
 
 # Database configuration
@@ -18,17 +25,29 @@ if is_prod:
     print("Running in PRODUCTION mode", file=sys.stderr)
     # Get DATABASE_URL from environment
     db_url = os.environ.get('DATABASE_URL', '')
+    
+    print(f"Raw DATABASE_URL: {db_url}", file=sys.stderr)
+    
     if not db_url:
-        print("WARNING: DATABASE_URL not set in environment", file=sys.stderr)
+        print("ERROR: DATABASE_URL not set in environment!", file=sys.stderr)
+        print("Available environment variables:", file=sys.stderr)
+        for key, value in os.environ.items():
+            if 'DATABASE' in key or 'DB' in key or 'POSTGRES' in key:
+                masked_value = value[:10] + '...' if len(value) > 10 else value
+                print(f"  {key}: {masked_value}", file=sys.stderr)
+    
+    # Ensure URL format is correct for SQLAlchemy
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
+        print(f"Fixed DATABASE_URL: {db_url[:10]}...", file=sys.stderr)
+    
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    print(f"Using database: {db_url}", file=sys.stderr)
 else:
     print("Running in DEVELOPMENT mode", file=sys.stderr)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///classroom_reservation.db'
     print(f"Using SQLite database", file=sys.stderr)
 
+print(f"Final DB URI type: {app.config['SQLALCHEMY_DATABASE_URI'].split(':')[0]}", file=sys.stderr)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
