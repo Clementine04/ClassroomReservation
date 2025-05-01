@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
+import sys
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -14,11 +15,19 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24).hex())
 
 # Database configuration
 if is_prod:
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '')
-    if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
-        app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+    print("Running in PRODUCTION mode", file=sys.stderr)
+    # Get DATABASE_URL from environment
+    db_url = os.environ.get('DATABASE_URL', '')
+    if not db_url:
+        print("WARNING: DATABASE_URL not set in environment", file=sys.stderr)
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    print(f"Using database: {db_url}", file=sys.stderr)
 else:
+    print("Running in DEVELOPMENT mode", file=sys.stderr)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///classroom_reservation.db'
+    print(f"Using SQLite database", file=sys.stderr)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -30,8 +39,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Define models
+# Define models with explicit table names
 class User(db.Model, UserMixin):
+    __tablename__ = 'users'  # Explicitly set table name
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)  # This is the ID number
     display_name = db.Column(db.String(100), nullable=True)  # Added display name field
@@ -46,25 +56,28 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
 class Department(db.Model):
+    __tablename__ = 'departments'  # Explicitly set table name
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     classrooms = db.relationship('Classroom', backref='department', lazy=True)
 
 class Classroom(db.Model):
+    __tablename__ = 'classrooms'  # Explicitly set table name
     id = db.Column(db.Integer, primary_key=True)
     room_number = db.Column(db.String(20), nullable=False)
     capacity = db.Column(db.Integer)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
+    department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=False)
     reservations = db.relationship('Reservation', backref='classroom', lazy=True)
 
 class Reservation(db.Model):
+    __tablename__ = 'reservations'  # Explicitly set table name
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
     purpose = db.Column(db.String(200))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    classroom_id = db.Column(db.Integer, db.ForeignKey('classroom.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    classroom_id = db.Column(db.Integer, db.ForeignKey('classrooms.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 @login_manager.user_loader
